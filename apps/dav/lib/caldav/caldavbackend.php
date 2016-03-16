@@ -22,6 +22,7 @@
 
 namespace OCA\DAV\CalDAV;
 
+use OCA\DAV\DAV\GroupPrincipalBackend;
 use OCA\DAV\DAV\Sharing\IShareable;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCA\DAV\Connector\Sabre\Principal;
@@ -106,10 +107,10 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 * @param IDBConnection $db
 	 * @param Principal $principalBackend
 	 */
-	public function __construct(IDBConnection $db, Principal $principalBackend) {
+	public function __construct(IDBConnection $db, $userPrincipalBackend, GroupPrincipalBackend $groupPrincipalBackend) {
 		$this->db = $db;
-		$this->principalBackend = $principalBackend;
-		$this->sharingBackend = new Backend($this->db, $principalBackend, 'calendar');
+		$this->principalBackend = $userPrincipalBackend;
+		$this->sharingBackend = new Backend($this->db, $userPrincipalBackend, $groupPrincipalBackend, 'calendar');
 	}
 
 	/**
@@ -1359,19 +1360,21 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 
 	/**
 	 * @param int $resourceId
+	 * @param string $currentPrincipal
 	 * @return array
 	 */
-	public function getShares($resourceId) {
-		return $this->sharingBackend->getShares($resourceId);
+	public function getShares($resourceId, $currentPrincipal) {
+		return $this->sharingBackend->getShares($resourceId, $currentPrincipal);
 	}
 
 	/**
 	 * @param int $resourceId
 	 * @param array $acl
+	 * @param string $currentPrincipal
 	 * @return array
 	 */
-	public function applyShareAcl($resourceId, $acl) {
-		return $this->sharingBackend->applyShareAcl($resourceId, $acl);
+	public function applyShareAcl($resourceId, $acl, $currentPrincipal) {
+		return $this->sharingBackend->applyShareAcl($resourceId, $acl, $currentPrincipal);
 	}
 
 	private function convertPrincipal($principalUri, $toV2) {

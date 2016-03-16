@@ -66,7 +66,7 @@ class AddressBook extends \Sabre\CardDAV\AddressBook implements IShareable {
 	function getShares() {
 		/** @var CardDavBackend $carddavBackend */
 		$carddavBackend = $this->carddavBackend;
-		return $carddavBackend->getShares($this->getResourceId());
+		return $carddavBackend->getShares($this->getResourceId(), $this->getOwner());
 	}
 
 	function getACL() {
