@@ -76,16 +76,23 @@ class FilesPlugin extends \Sabre\DAV\ServerPlugin {
 	private $fileView;
 
 	/**
+	 * @var bool
+	 */
+	private $downloadAttachment;
+
+	/**
 	 * @param \Sabre\DAV\Tree $tree
 	 * @param \OC\Files\View $view
 	 * @param bool $isPublic
 	 */
 	public function __construct(\Sabre\DAV\Tree $tree,
 	                            \OC\Files\View $view,
-	                            $isPublic = false) {
+	                            $isPublic = false,
+								$downloadAttachment = true) {
 		$this->tree = $tree;
 		$this->fileView = $view;
 		$this->isPublic = $isPublic;
+		$this->downloadAttachment = $downloadAttachment;
 	}
 
 	/**
@@ -192,7 +199,9 @@ class FilesPlugin extends \Sabre\DAV\ServerPlugin {
 		if (!($node instanceof IFile)) return;
 
 		// adds a 'Content-Disposition: attachment' header
-		$response->addHeader('Content-Disposition', 'attachment');
+		if ($this->downloadAttachment) {
+			$response->addHeader('Content-Disposition', 'attachment');
+		}
 
 		if ($node instanceof \OCA\DAV\Connector\Sabre\File) {
 			//Add OC-Checksum header
